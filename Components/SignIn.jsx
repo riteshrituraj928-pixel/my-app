@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const sportsList = [
   "Chess",
@@ -35,6 +36,7 @@ const themes = {
 };
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [role, setRole] = useState("player");
   const [form, setForm] = useState({
     email: "",
@@ -61,19 +63,30 @@ export default function SignIn() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { role, ...form };
-    console.log("──────────────────────────────────");
-    console.log("LOGIN DATA");
-    console.log("──────────────────────────────────");
-    console.log("Role        :", role.toUpperCase());
-    console.log("Email       :", form.email);
-    console.log("Mobile No   :", form.mobile);
-    console.log("Password    :", form.password);
-    console.log("Sports      :", form.sports.join(", ") || "None selected");
-    console.log("──────────────────────────────────");
-    console.log("Full payload:", payload);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          mobile: form.mobile,
+          password: form.password,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Login successful!");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/profile");
+      } else {
+        alert(data.message || "Invalid credentials.");
+      }
+    } catch (err) {
+      console.error("Login Fetch Error:", err);
+      alert("Could not connect to backend server at http://localhost:5000. Is the server running?");
+    }
   };
 
   return (

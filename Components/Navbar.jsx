@@ -75,6 +75,13 @@ export default function Navbar() {
             >
               About
             </a>
+            {/* Profile */}
+            <a
+              href="/profile"
+              className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
+            >
+              Profile
+            </a>
             {/* Games dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -152,12 +159,12 @@ export default function Navbar() {
             >
               Sign In
             </NavLink>
-            <button
-
+            <NavLink
+              to="/signup"
               className="rounded-lg bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.97]"
             >
               Sign Up
-            </button>
+            </NavLink>
           </div>
           {/* ——— Mobile menu button ——— */}
           <button
@@ -215,6 +222,12 @@ export default function Navbar() {
             className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
           >
             About
+          </a>
+          <a
+            href="/profile"
+            className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            Profile
           </a>
           {/* Mobile games accordion */}
           <div>

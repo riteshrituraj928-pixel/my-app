@@ -1,0 +1,37 @@
+/* src/components/VerificationModal.css */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.modal-container {
+  background: #fff; border-radius: 16px; max-width: 620px; width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden;
+}
+.modal-header {
+  padding: 16px 24px; background: #0f172a; color: #fff;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { margin: 0; font-size: 1.2rem; }
+.modal-subtitle { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; }
+.modal-close-btn { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
+.step-bar { display: flex; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+.step-item { flex: 1; padding: 10px; text-align: center; font-size: 0.75rem; font-weight: 600; color: #64748b; }
+.step-item.active { color: #0d9488; border-bottom: 2px solid #0d9488; background: #fff; }
+.modal-form { padding: 20px; }
+.form-step { display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-label { font-size: 0.82rem; font-weight: 600; color: #334155; }
+input[type="text"], input[type="number"], input[type="url"], select, textarea {
+  width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; box-sizing: border-box;
+}
+.role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.role-option { padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.role-option.selected { border-color: #0d9488; background: #f0fdf4; color: #065f46; }
+.modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+.btn-primary { background: #0d9488; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.btn-secondary { background: #f1f5f9; color: #475569; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.btn-success { background: #16a34a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }

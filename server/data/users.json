@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "1787138139980",
+    "name": "Bhavesh Kumar",
+    "email": "bhaveshstd44@gmail.com",
+    "mobile": "6205424593",
+    "password": "$2a$10$NSPNmFtJ7bib6295xeMerO24O3UOMFtHvn63J9gVfS/UdMsAFfun2",
+    "role": "player",
+    "sports": [
+      "Chess",
+      "Kabaddi",
+      "Wrestling"
+    ],
+    "verificationPercentage": 60,
+    "isVerified": false,
+    "createdAt": "2026-08-19T11:15:39.980Z"
+  }
+]
