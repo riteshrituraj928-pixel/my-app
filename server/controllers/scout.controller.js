@@ -1,9 +1,7 @@
 const Scout = require("../models/scout.model");
 
 exports.createScout = async (req, res) => {
-
     try {
-
         const {
             userId,
             institutePic,

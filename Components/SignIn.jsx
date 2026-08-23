@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../src/context/AuthContext";
 
 const sportsList = [
   "Chess",
@@ -37,12 +39,11 @@ const themes = {
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [role, setRole] = useState("player");
   const [form, setForm] = useState({
     email: "",
-    mobile: "",
     password: "",
-    sports: [],
   });
 
   const t = themes[role];
@@ -54,38 +55,29 @@ export default function SignIn() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const toggleSport = (sport) => {
-    setForm((prev) => ({
-      ...prev,
-      sports: prev.sports.includes(sport)
-        ? prev.sports.filter((s) => s !== sport)
-        : [...prev.sports, sport],
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("http://localhost:4000/api/v1/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
-          mobile: form.mobile,
           password: form.password,
+          type: role,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        alert("Login successful!");
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/profile");
+      if (res.ok && data.user) {
+        login(data.user);
+        toast.success("Login successful! 🎉");
+        navigate("/");
       } else {
-        alert(data.message || "Invalid credentials.");
+        toast.error(data.message || "Invalid credentials.");
       }
     } catch (err) {
       console.error("Login Fetch Error:", err);
-      alert("Could not connect to backend server at http://localhost:5000. Is the server running?");
+      toast.error("Could not connect to server. Is the backend running?");
     }
   };
 
@@ -166,19 +158,6 @@ export default function SignIn() {
               />
             </div>
 
-            {/* Mobile */}
-            <div>
-              <input
-                type="tel"
-                name="mobile"
-                value={form.mobile}
-                onChange={handleChange}
-                required
-                placeholder="Mobile Number"
-                className={`w-full border-b border-white/15 bg-transparent px-1 py-3 text-sm text-white outline-none placeholder:text-gray-500 transition-colors focus:border-b-2 focus:${t.focusBorder}`}
-              />
-            </div>
-
             {/* Password */}
             <div>
               <input
@@ -190,37 +169,6 @@ export default function SignIn() {
                 placeholder="Password"
                 className={`w-full border-b border-white/15 bg-transparent px-1 py-3 text-sm text-white outline-none placeholder:text-gray-500 transition-colors focus:border-b-2 focus:${t.focusBorder}`}
               />
-            </div>
-
-            {/* Sports preferred */}
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-                Sports Preferred
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {sportsList.map((sport) => {
-                  const isActive = form.sports.includes(sport);
-                  return (
-                    <button
-                      key={sport}
-                      type="button"
-                      onClick={() => toggleSport(sport)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-all duration-200 ${
-                        isActive
-                          ? `${t.chipActive}`
-                          : "text-gray-400 ring-white/10 hover:ring-white/25 hover:text-gray-300"
-                      }`}
-                    >
-                      {sport}
-                    </button>
-                  );
-                })}
-              </div>
-              {form.sports.length > 0 && (
-                <p className={`mt-2 text-xs font-medium ${t.text}`}>
-                  {form.sports.length} selected
-                </p>
-              )}
             </div>
 
             {/* Remember me */}

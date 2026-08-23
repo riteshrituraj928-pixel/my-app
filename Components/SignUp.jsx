@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../src/context/AuthContext";
 
 const sportsList = [
   "Chess",
@@ -37,11 +39,12 @@ const themes = {
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [role, setRole] = useState("player");
   const [form, setForm] = useState({
     name: "",
     email: "",
-    mobile: "",
+    mobileNo: "",
     password: "",
     confirmPassword: "",
     sports: [],
@@ -65,36 +68,40 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
+      return;
+    }
+    if (form.sports.length === 0) {
+      toast.error("Please select at least one sport.");
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch("http://localhost:4000/api/v1/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
           email: form.email,
-          mobile: form.mobile,
+          mobileNo: form.mobileNo,
           password: form.password,
-          role,
+          type: role,
           sports: form.sports,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        alert("Registration successful!");
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/profile");
+      if (res.ok && data.user) {
+        login(data.user);
+        toast.success("Registration successful! 🎉");
+        navigate("/");
       } else {
-        alert(data.message || "Registration failed.");
-        if (data.isAlreadyRegistered) {
-          navigate("/signin");
+        toast.error(data.message || "Registration failed.");
+        if (data.message === "User already exists") {
+          setTimeout(() => navigate("/signin"), 1500);
         }
       }
     } catch (err) {
       console.error("SignUp Fetch Error:", err);
-      alert("Could not connect to backend server at http://localhost:5000. Make sure backend is running!");
+      toast.error("Could not connect to server. Is the backend running?");
     }
   };
 
@@ -181,10 +188,10 @@ export default function SignUp() {
                 <label className="block text-xs font-semibold text-gray-300">Mobile Number</label>
                 <input
                   type="tel"
-                  name="mobile"
-                  value={form.mobile}
+                  name="mobileNo"
+                  value={form.mobileNo}
                   onChange={handleChange}
-                  placeholder="+91 9876543210"
+                  placeholder="9876543210"
                   required
                   className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-emerald-500 focus:bg-white/10"
                 />

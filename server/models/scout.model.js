@@ -111,9 +111,5 @@ const scoutSchema = new Schema(
         timestamps: true
     }
 );
-
-
 const Scout = mongoose.model("Scout", scoutSchema);
-
-
 module.exports = Scout;

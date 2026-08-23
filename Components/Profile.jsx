@@ -1,36 +1,46 @@
 import React, { useState } from 'react';
+import { useAuth } from '../src/context/AuthContext';
 import VerificationModal from './VerificationModal';
 import { SPORTS_LIST } from '../src/data/sportsList';
 import './Profile.css';
 
-export default function Profile({ currentUser }) {
-  // Read user role & data from props or internal state (Auth simulation)
+export default function Profile() {
+  const { user: authUser } = useAuth();
+
+  // Merge auth user data with profile state
+  // If profile hasn't been updated via the verification modal,
+  // we show only the basic data we have from signup/login
   const [user, setUser] = useState({
-    name: currentUser?.name || 'Suraj Singh Tanwar',
-    role: currentUser?.role || 'player', // 'player' or 'scout' (controlled by auth state)
-    age: currentUser?.age || '20',
-    gender: currentUser?.gender || 'Male',
-    academicQualification: currentUser?.academicQualification || '12th Pass (Higher Secondary)',
-    village: currentUser?.village || 'Khedi Sadh',
-    district: currentUser?.district || 'Rohtak, Haryana',
-    avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    verificationPercentage: currentUser?.verificationPercentage || 60,
-    isVerified: currentUser?.isVerified || false,
-    
+    name: authUser?.name || 'Unknown User',
+    email: authUser?.email || '',
+    mobileNo: authUser?.mobileNo || '',
+    role: authUser?.type || 'player', // backend stores as 'type'
+    sports: authUser?.sports || [],
+
+    // These fields are empty until the user completes their profile
+    age: '',
+    gender: '',
+    academicQualification: '',
+    village: '',
+    district: '',
+    avatar: '',
+    verificationPercentage: 0,
+    isVerified: false,
+
     // Player Specific Data
-    sport: currentUser?.sport || 'Kabaddi',
-    sportLevel: currentUser?.sportLevel || 'District Level Champion',
-    villageRank: currentUser?.villageRank || 'Rank #1 in Block',
-    rating: currentUser?.rating || 4.9,
-    bio: currentUser?.bio || 'Kabaddi raider from Khedi village. Won silver medal in Block level tournament 2024. Passionate about bringing village talent to national academies.',
-    achievements: currentUser?.achievements || '• Best Raider Award 2024 (Rohtak Block)\n• Captain of Khedi Village Kabaddi Team\n• State Trials Qualifier',
-    videoProofUrl: currentUser?.videoProofUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    photoProofUrl: currentUser?.photoProofUrl || 'https://images.unsplash.com/photo-1517649763962-0c6232662000?auto=format&fit=crop&w=600&q=80',
-    
+    sport: authUser?.sports?.[0] || '',
+    sportLevel: '',
+    villageRank: '',
+    rating: 0,
+    bio: '',
+    achievements: '',
+    videoProofUrl: '',
+    photoProofUrl: '',
+
     // Scout Specific Data
-    scoutAgency: currentUser?.scoutAgency || 'Haryana Grassroots Sports Federation',
-    scoutExperience: currentUser?.scoutExperience || '8 Years',
-    targetRegions: currentUser?.targetRegions || 'Rohtak, Jhajjar & Sonipat Villages'
+    scoutAgency: '',
+    scoutExperience: '',
+    targetRegions: ''
   });
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -47,6 +57,10 @@ export default function Profile({ currentUser }) {
     }));
   };
 
+  const isProfileIncomplete = !user.age || !user.village || !user.gender;
+
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=0f172a&size=130&bold=true&font-size=0.4`;
+
   return (
     <div className="demo3-profile-wrapper">
       {/* Main Glass Card Container (Demo 3 Style) */}
@@ -62,7 +76,7 @@ export default function Profile({ currentUser }) {
         <div className="demo3-header-content">
           <div className="avatar-section">
             <div className="avatar-ring">
-              <img src={user.avatar} alt={user.name} className="demo3-avatar-img" />
+              <img src={user.avatar || defaultAvatar} alt={user.name} className="demo3-avatar-img" />
             </div>
           </div>
 
@@ -71,21 +85,27 @@ export default function Profile({ currentUser }) {
               <div className="name-badge-row">
                 <h1 className="user-fullname">{user.name}</h1>
                 <span className={`verified-badge-pill ${user.isVerified ? 'is-verified' : 'is-pending'}`}>
-                  {user.isVerified ? '✓ Verified Profile' : '⚠️ 60% Verified'}
+                  {user.isVerified ? '✓ Verified Profile' : '⚠️ Profile Incomplete'}
                 </span>
               </div>
               <p className="user-tagline">
                 {user.role === 'player'
-                  ? `${currentSportObj.icon} ${user.sport} Player • ${user.sportLevel}`
-                  : `🔍 Talent Scout • ${user.scoutAgency}`}
+                  ? user.sport
+                    ? `${currentSportObj.icon} ${user.sport} Player${user.sportLevel ? ` • ${user.sportLevel}` : ''}`
+                    : '🏃 Player'
+                  : user.scoutAgency
+                    ? `🔍 Talent Scout • ${user.scoutAgency}`
+                    : '🔍 Talent Scout'}
               </p>
-              <p className="user-location-text">
-                📍 {user.village}, {user.district}
-              </p>
+              {(user.village || user.district) && (
+                <p className="user-location-text">
+                  📍 {[user.village, user.district].filter(Boolean).join(', ')}
+                </p>
+              )}
 
               <div className="action-buttons-group">
                 <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
-                  {user.isVerified ? 'Edit Profile' : '⚡ Complete Verification'}
+                  {user.isVerified ? 'Edit Profile' : '⚡ Complete Profile'}
                 </button>
                 <button className="btn-settings-secondary" onClick={() => setIsModalOpen(true)}>
                   ⚙️ Settings
@@ -102,37 +122,35 @@ export default function Profile({ currentUser }) {
               </div>
 
               <div className="skills-tags-container">
-                <span className="meta-label">Sports & Qualifications ⭐</span>
+                <span className="meta-label">Sports & Info ⭐</span>
                 <div className="tags-flex-wrap">
-                  {user.role === 'player' ? (
-                    <>
-                      <span className="skill-chip highlight">{currentSportObj.name}</span>
-                      <span className="skill-chip">{user.villageRank}</span>
-                      <span className="skill-chip">{user.academicQualification}</span>
-                      <span className="skill-chip">Age: {user.age}</span>
-                    </>
+                  {user.sports && user.sports.length > 0 ? (
+                    user.sports.map((sport, idx) => (
+                      <span key={idx} className={`skill-chip ${idx === 0 ? 'highlight' : ''}`}>{sport}</span>
+                    ))
                   ) : (
-                    <>
-                      <span className="skill-chip highlight">{user.scoutAgency}</span>
-                      <span className="skill-chip">{user.scoutExperience} Exp</span>
-                      <span className="skill-chip">Verified Scout</span>
-                    </>
+                    <span className="skill-chip">No sports selected</span>
                   )}
+                  {user.email && <span className="skill-chip">📧 {user.email}</span>}
+                  {user.mobileNo && <span className="skill-chip">📱 {user.mobileNo}</span>}
+                  {user.age && <span className="skill-chip">Age: {user.age}</span>}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3 Quick Action Insight Cards (Demo 3 Feature Cards) */}
+        {/* Quick Action Insight Cards */}
         <div className="demo3-insight-cards">
           <div className="insight-card click-card" onClick={() => setIsModalOpen(true)}>
             <div className="insight-text-wrapper">
-              <span className="insight-title">Verification Status</span>
+              <span className="insight-title">Profile Status</span>
               <p className="insight-desc">
-                {user.verificationPercentage === 100
-                  ? 'Your profile is 100% verified for scouts!'
-                  : 'Complete details to get scouted.'}
+                {isProfileIncomplete
+                  ? 'Complete your profile to get noticed by scouts.'
+                  : user.isVerified
+                    ? 'Your profile is 100% verified for scouts!'
+                    : 'Profile details added. Submit for verification.'}
               </p>
             </div>
             <div className="insight-arrow">➔</div>
@@ -152,7 +170,9 @@ export default function Profile({ currentUser }) {
             <div className="insight-text-wrapper">
               <span className="insight-title">Academic & Village Stats</span>
               <p className="insight-desc">
-                {user.academicQualification} • {user.village}
+                {user.academicQualification
+                  ? `${user.academicQualification} • ${user.village || 'No village set'}`
+                  : 'Add your academic and village details'}
               </p>
             </div>
             <div className="insight-arrow">➔</div>
@@ -192,17 +212,32 @@ export default function Profile({ currentUser }) {
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="tab-pane">
-              <div className="content-grid-2col">
-                <div className="content-card">
-                  <h3 className="section-title">📝 About / Sports Journey</h3>
-                  <p className="bio-paragraph">{user.bio || 'No bio added yet.'}</p>
+              {isProfileIncomplete ? (
+                <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <p style={{ fontSize: '3rem', marginBottom: '16px' }}>📋</p>
+                  <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                    Complete Your Profile
+                  </h3>
+                  <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                    Hi <strong>{user.name}</strong>! Your profile is not complete yet. Click the button below to add your bio, achievements, and personal details so scouts can discover you.
+                  </p>
+                  <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                    ⚡ Complete Profile Now
+                  </button>
                 </div>
+              ) : (
+                <div className="content-grid-2col">
+                  <div className="content-card">
+                    <h3 className="section-title">📝 About / Sports Journey</h3>
+                    <p className="bio-paragraph">{user.bio || 'No bio added yet.'}</p>
+                  </div>
 
-                <div className="content-card">
-                  <h3 className="section-title">🏆 Key Achievements & Medals</h3>
-                  <pre className="achievements-pre">{user.achievements || 'No achievements listed.'}</pre>
+                  <div className="content-card">
+                    <h3 className="section-title">🏆 Key Achievements & Medals</h3>
+                    <pre className="achievements-pre">{user.achievements || 'No achievements listed.'}</pre>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -211,25 +246,55 @@ export default function Profile({ currentUser }) {
             <div className="tab-pane">
               {user.role === 'player' ? (
                 <div className="sport-details-wrapper">
-                  <div className="sport-hero-card">
-                    <span className="giant-sport-icon">{currentSportObj.icon}</span>
-                    <div className="sport-hero-info">
-                      <h2>{user.sport}</h2>
-                      <p className="sport-subtitle">{user.sportLevel}</p>
-                      <div className="chips-row">
-                        <span className="chip-yellow">🏆 {user.villageRank}</span>
-                        <span className="chip-blue">⭐ {user.rating} / 5.0 Scout Rating</span>
+                  {user.sport && user.sportLevel ? (
+                    <div className="sport-hero-card">
+                      <span className="giant-sport-icon">{currentSportObj.icon}</span>
+                      <div className="sport-hero-info">
+                        <h2>{user.sport}</h2>
+                        <p className="sport-subtitle">{user.sportLevel}</p>
+                        <div className="chips-row">
+                          {user.villageRank && <span className="chip-yellow">🏆 {user.villageRank}</span>}
+                          {user.rating > 0 && <span className="chip-blue">⭐ {user.rating} / 5.0 Scout Rating</span>}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                      <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🏅</p>
+                      <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                        Add Sport Details
+                      </h3>
+                      <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                        Tell us about your sport, level, and ranking.
+                      </p>
+                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                        ⚡ Add Sport Details
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="scout-details-wrapper">
-                  <div className="content-card">
-                    <h3>🔍 Scouting Organization: {user.scoutAgency}</h3>
-                    <p><strong>Years of Experience:</strong> {user.scoutExperience}</p>
-                    <p><strong>Target Talent Districts:</strong> {user.targetRegions}</p>
-                  </div>
+                  {user.scoutAgency ? (
+                    <div className="content-card">
+                      <h3>🔍 Scouting Organization: {user.scoutAgency}</h3>
+                      <p><strong>Years of Experience:</strong> {user.scoutExperience}</p>
+                      <p><strong>Target Talent Districts:</strong> {user.targetRegions}</p>
+                    </div>
+                  ) : (
+                    <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                      <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</p>
+                      <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                        Add Scouting Details
+                      </h3>
+                      <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                        Add your scouting agency and experience details.
+                      </p>
+                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                        ⚡ Add Scouting Details
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -277,27 +342,54 @@ export default function Profile({ currentUser }) {
           {/* TAB 4: ACADEMIC DETAILS */}
           {activeTab === 'academic' && (
             <div className="tab-pane">
-              <div className="content-card">
-                <h3 className="section-title">🎓 Personal & Educational Qualifications</h3>
-                <div className="details-list">
-                  <div className="detail-item">
-                    <span className="detail-label">Academic Qualification:</span>
-                    <span className="detail-val">{user.academicQualification}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Age & Gender:</span>
-                    <span className="detail-val">{user.age} Years • {user.gender}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Village / Gram Panchayat:</span>
-                    <span className="detail-val">{user.village}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">District & State:</span>
-                    <span className="detail-val">{user.district}</span>
+              {isProfileIncomplete ? (
+                <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🎓</p>
+                  <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                    Add Academic Details
+                  </h3>
+                  <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                    Complete your profile to show academic and personal information.
+                  </p>
+                  <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                    ⚡ Complete Profile
+                  </button>
+                </div>
+              ) : (
+                <div className="content-card">
+                  <h3 className="section-title">🎓 Personal & Educational Qualifications</h3>
+                  <div className="details-list">
+                    <div className="detail-item">
+                      <span className="detail-label">Academic Qualification:</span>
+                      <span className="detail-val">{user.academicQualification || 'Not specified'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Age & Gender:</span>
+                      <span className="detail-val">{user.age} Years • {user.gender}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Village / Gram Panchayat:</span>
+                      <span className="detail-val">{user.village || 'Not specified'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">District & State:</span>
+                      <span className="detail-val">{user.district || 'Not specified'}</span>
+                    </div>
+                    {user.email && (
+                      <div className="detail-item">
+                        <span className="detail-label">Email:</span>
+                        <span className="detail-val">{user.email}</span>
+                      </div>
+                    )}
+                    {user.mobileNo && (
+                      <div className="detail-item">
+                        <span className="detail-label">Mobile:</span>
+                        <span className="detail-val">{user.mobileNo}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

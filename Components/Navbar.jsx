@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
-import SignIn from "./Signin";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../src/context/AuthContext";
+import toast from "react-hot-toast";
 
 const games = [
   { name: "Chess", emoji: "♟️" },
@@ -14,11 +15,15 @@ const games = [
   { name: "Athletics", emoji: "🏃" },
   { name: "Archery", emoji: "🏹" },
 ];
+
 export default function Navbar() {
+  const { user, isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
   const [gamesOpen, setGamesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef(null);
+
   /* Close dropdown on outside click */
   useEffect(() => {
     function handleClickOutside(e) {
@@ -29,12 +34,20 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   /* Shrink navbar on scroll */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
+
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -59,6 +72,7 @@ export default function Navbar() {
               </span>
             </span>
           </a>
+
           {/* ——— Desktop nav links ——— */}
           <div className="hidden items-center gap-1 md:flex">
             {/* Home */}
@@ -75,13 +89,15 @@ export default function Navbar() {
             >
               About
             </a>
-            {/* Profile */}
-            <a
-              href="/profile"
-              className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
-            >
-              Profile
-            </a>
+            {/* Profile — only visible when logged in */}
+            {isLoggedIn && (
+              <a
+                href="/profile"
+                className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
+              >
+                Profile
+              </a>
+            )}
             {/* Games dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -151,21 +167,39 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+
           {/* ——— Auth buttons (desktop) ——— */}
           <div className="hidden items-center gap-2 md:flex">
-            <NavLink to="/signin"
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              
-            >
-              Sign In
-            </NavLink>
-            <NavLink
-              to="/signup"
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.97]"
-            >
-              Sign Up
-            </NavLink>
+            {isLoggedIn ? (
+              <>
+                {/* User greeting */}
+                <span className="px-3 py-2 text-sm font-semibold text-gray-700">
+                  👋 {user?.name?.split(" ")[0] || "User"}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="rounded-lg px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/signin"
+                  className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Sign In
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="rounded-lg bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.97]"
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            )}
           </div>
+
           {/* ——— Mobile menu button ——— */}
           <button
             onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -204,6 +238,7 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
       {/* ——— Mobile menu panel ——— */}
       <div
         className={`overflow-hidden transition-all duration-300 md:hidden ${
@@ -223,12 +258,15 @@ export default function Navbar() {
           >
             About
           </a>
-          <a
-            href="/profile"
-            className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
-          >
-            Profile
-          </a>
+          {/* Profile — only visible when logged in */}
+          {isLoggedIn && (
+            <a
+              href="/profile"
+              className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              Profile
+            </a>
+          )}
           {/* Mobile games accordion */}
           <div>
             <button
@@ -275,20 +313,37 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+
           {/* Mobile auth buttons */}
           <div className="mt-2 flex gap-2 border-t border-gray-100 pt-3">
-            <a
-              href="/signin"
-              className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-center text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-            >
-              Sign In
-            </a>
-            <a
-              href="/signup"
-              className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:brightness-110"
-            >
-              Sign Up
-            </a>
+            {isLoggedIn ? (
+              <>
+                <span className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-center text-sm font-semibold text-gray-700">
+                  👋 {user?.name?.split(" ")[0] || "User"}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 rounded-xl border border-red-200 px-4 py-2.5 text-center text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/signin"
+                  className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-center text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/signup"
+                  className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:brightness-110"
+                >
+                  Sign Up
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -228,8 +228,8 @@ const athleticsDataSchema = new Schema(
         event: {
             type: String,
             enum: [
-                "100m","200m","400m","800m","1500m","Long Jump","High Jump",
-                "Shot Put","Javelin","Marathon","Relay"
+                "100m", "200m", "400m", "800m", "1500m", "Long Jump", "High Jump",
+                "Shot Put", "Javelin", "Marathon", "Relay"
             ]
         },
 
@@ -350,7 +350,7 @@ const chessDataSchema = new Schema(
         title: {
             type: String,
             enum: [
-                "None","CM","FM","IM","GM","WCM","WFM","WIM","WGM"
+                "None", "CM", "FM", "IM", "GM", "WCM", "WFM", "WIM", "WGM"
             ],
             default: "None"
         },
@@ -401,7 +401,7 @@ const sportProfileSchema = new Schema(
                 "International"
             ]
         },
-        
+
         data: {
             type: Schema.Types.Mixed,
             required: true
@@ -559,11 +559,11 @@ athleteSchema.set("toObject", {
     virtuals: true
 });
 
-const Athlete = mongoose.model(
-    "Athlete",
-    athleteSchema
-);
+const Athlete =
+    mongoose.models.Athlete ||
+    mongoose.model("Athlete", athleteSchema);
 
+    
 module.exports = {
     Athlete,
     SPORT_SCHEMA_MAP
