@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import VerificationModal from './VerificationModal';
 import { SPORTS_LIST } from '../src/data/sportsList';

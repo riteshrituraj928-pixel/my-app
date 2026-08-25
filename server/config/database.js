@@ -8,9 +8,7 @@ const connectWithDb = () => {
             console.log("DB Connected Successfully");
         })
         .catch((error) => {
-            console.log("DB Facing Connection Issues");
-            console.log(error);
-            process.exit(1);
+            console.log("DB Facing Connection Issues (start MongoDB on port 27017 to connect):", error.message);
         });
 };
 

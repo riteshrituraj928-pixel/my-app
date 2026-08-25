@@ -1,11 +1,9 @@
 // src/components/VerificationModal.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { SPORTS_LIST, ACADEMIC_QUALIFICATIONS } from '../src/data/sportsList';
 import './VerificationModal.css';
 
 export default function VerificationModal({ isOpen, onClose, userData, onSave }) {
-  if (!isOpen) return null;
-
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     role: userData?.role || 'player',
@@ -53,6 +51,8 @@ export default function VerificationModal({ isOpen, onClose, userData, onSave })
     });
     onClose();
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>

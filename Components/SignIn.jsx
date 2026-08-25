@@ -3,19 +3,6 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../src/context/AuthContext";
 
-const sportsList = [
-  "Chess",
-  "Cricket",
-  "Football",
-  "Wrestling",
-  "Hockey",
-  "Kabaddi",
-  "Volleyball",
-  "Badminton",
-  "Athletics",
-  "Archery",
-];
-
 const themes = {
   player: {
     gradient: "from-violet-500 to-purple-600",

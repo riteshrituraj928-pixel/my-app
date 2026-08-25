@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Navbar from "../Components/Navbar";
 import Home from "../Components/Home";
 import About from "../Components/About";
 import Games from "../Components/Games";

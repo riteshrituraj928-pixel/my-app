@@ -59,7 +59,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
         <div className="flex items-center justify-between">
           {/* ——— Brand ——— */}
-          <a href="/" className="group flex items-center gap-3 select-none">
+          <NavLink to="/" className="group flex items-center gap-3 select-none">
             {/* Logo mark */}
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-lg font-black text-white shadow-md shadow-emerald-500/25 transition-transform duration-300 group-hover:scale-105">
               <img src="https://w7.pngwing.com/pngs/303/549/png-transparent-sport-logo-football-sports-logos-text-sport-logo.png" alt="" />
@@ -71,32 +71,65 @@ export default function Navbar() {
                 KHILADI
               </span>
             </span>
-          </a>
+          </NavLink>
 
           {/* ——— Desktop nav links ——— */}
           <div className="hidden items-center gap-1 md:flex">
             {/* Home */}
-            <a
-              href="/"
-              className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `relative rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                  isActive
+                    ? "bg-emerald-50 text-emerald-700 font-extrabold"
+                    : "text-gray-700 hover:bg-emerald-50 hover:text-orange-700"
+                }`
+              }
             >
               Home
-            </a>
+            </NavLink>
             {/* About */}
-            <a
-              href="/about"
-              className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `relative rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                  isActive
+                    ? "bg-emerald-50 text-emerald-700 font-extrabold"
+                    : "text-gray-700 hover:bg-emerald-50 hover:text-orange-700"
+                }`
+              }
             >
               About
-            </a>
+            </NavLink>
             {/* Profile — only visible when logged in */}
             {isLoggedIn && (
-              <a
-                href="/profile"
-                className="relative rounded-lg px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-orange-700"
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `relative rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                    isActive
+                      ? "bg-emerald-50 text-emerald-700 font-extrabold"
+                      : "text-gray-700 hover:bg-emerald-50 hover:text-orange-700"
+                  }`
+                }
               >
                 Profile
-              </a>
+              </NavLink>
+            )}
+            {/* Dashboard — only visible when scout is logged in */}
+            {isLoggedIn && (user?.type === "scout" || user?.role === "scout") && (
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `relative rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                    isActive
+                      ? "bg-cyan-50 text-cyan-700 font-extrabold"
+                      : "text-gray-700 hover:bg-cyan-50 hover:text-cyan-700"
+                  }`
+                }
+              >
+                Dashboard
+              </NavLink>
             )}
             {/* Games dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -246,26 +279,55 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-4 mt-3 space-y-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-lg">
-          <a
-            href="/"
-            className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+          <NavLink
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                isActive ? "bg-emerald-50 text-emerald-700 font-bold" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+              }`
+            }
           >
             Home
-          </a>
-          <a
-            href="/about"
-            className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+          </NavLink>
+          <NavLink
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                isActive ? "bg-emerald-50 text-emerald-700 font-bold" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+              }`
+            }
           >
             About
-          </a>
+          </NavLink>
           {/* Profile — only visible when logged in */}
           {isLoggedIn && (
-            <a
-              href="/profile"
-              className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            <NavLink
+              to="/profile"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  isActive ? "bg-emerald-50 text-emerald-700 font-bold" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+                }`
+              }
             >
               Profile
-            </a>
+            </NavLink>
+          )}
+          {/* Dashboard — only visible when scout is logged in */}
+          {isLoggedIn && (user?.type === "scout" || user?.role === "scout") && (
+            <NavLink
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  isActive ? "bg-cyan-50 text-cyan-700 font-bold" : "text-gray-700 hover:bg-cyan-50 hover:text-cyan-700"
+                }`
+              }
+            >
+              Dashboard
+            </NavLink>
           )}
           {/* Mobile games accordion */}
           <div>

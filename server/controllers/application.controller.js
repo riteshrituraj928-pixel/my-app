@@ -1,17 +1,43 @@
 const Application = require("../models/Application.model");
 const { Athlete } = require("../models/Athelete.model");
 const Scout = require("../models/scout.model");
+const User = require("../models/User");
+
+// Helper to resolve or auto-create Athlete record from either Athlete._id or User._id
+async function resolveAthlete(playerId) {
+    if (!playerId) return null;
+    let athlete = null;
+    try {
+        athlete = await Athlete.findById(playerId);
+    } catch (e) {}
+
+    if (!athlete) {
+        try {
+            athlete = await Athlete.findOne({ userId: playerId });
+        } catch (e) {}
+    }
+
+    if (!athlete) {
+        try {
+            const user = await User.findById(playerId);
+            if (user) {
+                athlete = await Athlete.create({
+                    userId: user._id,
+                    dob: new Date("2002-01-01"),
+                    gender: "Male",
+                    location: { city: "Village", state: "India", country: "India" },
+                    sports: user.sports ? user.sports.map(s => ({ sportName: s, experienceYears: 2, currentLevel: "District", data: {} })) : []
+                });
+            }
+        } catch (e) {}
+    }
+
+    return athlete;
+}
 
 exports.applyToScout = async (req, res) => {
-
     try {
-
         const { playerId, scoutId } = req.body;
-
-        console.log("PLAYER ID:", playerId);
-        console.log("SCOUT ID:", scoutId);
-        console.log("ATHLETE MODEL:", typeof Athlete.findById);
-        console.log("SCOUT MODEL:", typeof Scout.findById);
 
         if (!playerId || !scoutId) {
             return res.status(400).json({
@@ -20,17 +46,15 @@ exports.applyToScout = async (req, res) => {
             });
         }
 
-        const athleteExists = await Athlete.findById(playerId);
-
-        if (!athleteExists) {
+        const athlete = await resolveAthlete(playerId);
+        if (!athlete) {
             return res.status(404).json({
                 success: false,
-                message: "Athlete not found"
+                message: "Athlete / Player profile not found"
             });
         }
 
         const scoutExists = await Scout.findById(scoutId);
-
         if (!scoutExists) {
             return res.status(404).json({
                 success: false,
@@ -38,8 +62,22 @@ exports.applyToScout = async (req, res) => {
             });
         }
 
+        const effectivePlayerId = athlete._id;
+
+        const existingApp = await Application.findOne({
+            playerId: effectivePlayerId,
+            scoutId
+        });
+
+        if (existingApp) {
+            return res.status(400).json({
+                success: false,
+                message: "You have already applied to this scout"
+            });
+        }
+
         const application = await Application.create({
-            playerId,
+            playerId: effectivePlayerId,
             scoutId
         });
 
@@ -50,7 +88,6 @@ exports.applyToScout = async (req, res) => {
         });
 
     } catch (err) {
-
         if (err.code === 11000) {
             return res.status(400).json({
                 success: false,
@@ -64,14 +101,18 @@ exports.applyToScout = async (req, res) => {
         });
     }
 };
+
 exports.getMyApplications = async (req, res) => {
-
     try {
-
         const { playerId } = req.params;
+        const athlete = await resolveAthlete(playerId);
+        const searchIds = [playerId];
+        if (athlete && athlete._id.toString() !== playerId) {
+            searchIds.push(athlete._id);
+        }
 
         const applications = await Application.find({
-            playerId
+            playerId: { $in: searchIds }
         })
         .populate("scoutId")
         .sort({ createdAt: -1 });
@@ -83,7 +124,6 @@ exports.getMyApplications = async (req, res) => {
         });
 
     } catch (err) {
-
         res.status(500).json({
             success: false,
             message: err.message
@@ -91,22 +131,17 @@ exports.getMyApplications = async (req, res) => {
     }
 };
 
-
-// ==========================================
-// OTHER SCOUTS
-// Scouts this player has NOT applied to
-//
-// GET /api/v1/scouts/other/:playerId
-// ==========================================
-
 exports.getOtherScouts = async (req, res) => {
-
     try {
-
         const { playerId } = req.params;
+        const athlete = await resolveAthlete(playerId);
+        const searchIds = [playerId];
+        if (athlete && athlete._id.toString() !== playerId) {
+            searchIds.push(athlete._id);
+        }
 
         const existingApplications = await Application.find({
-            playerId
+            playerId: { $in: searchIds }
         }).select("scoutId");
 
         const appliedScoutIds = existingApplications.map(
@@ -127,7 +162,6 @@ exports.getOtherScouts = async (req, res) => {
         });
 
     } catch (err) {
-
         res.status(500).json({
             success: false,
             message: err.message

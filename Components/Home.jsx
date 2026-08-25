@@ -1,6 +1,24 @@
 import Navbar from "./Navbar";
+import PlayerHome from "./PlayerHome";
+import ScoutHome from "./ScoutHome";
+import { useAuth } from "../src/context/AuthContext";
 
 export default function Home() {
+  const { user, isLoggedIn } = useAuth();
+
+  // If user is logged in as a player, show the dedicated Player Home page
+  const isPlayer = isLoggedIn && (user?.type === "player" || user?.role === "player");
+  // If user is logged in as a scout, show the dedicated Scout Dashboard
+  const isScout = isLoggedIn && (user?.type === "scout" || user?.role === "scout");
+
+  if (isPlayer) {
+    return <PlayerHome />;
+  }
+
+  if (isScout) {
+    return <ScoutHome />;
+  }
+
   // High-resolution classic sports action photograph
   const HERO_BG = "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=2000&q=90";
 
