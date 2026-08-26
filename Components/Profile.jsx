@@ -48,7 +48,7 @@ export default function Profile() {
 
   const currentSportObj = SPORTS_LIST.find(
     (s) => s.name.toLowerCase() === user.sport?.toLowerCase()
-  ) || SPORTS_LIST[0];
+  ) || { icon: '🏃' };
 
   const handleSaveProfile = (updatedData) => {
     setUser((prev) => ({

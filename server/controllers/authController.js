@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Scout = require("../models/scout.model");
+const { Athlete } = require("../models/Athelete.model");
 
 const register = async (req, res) => {
 
@@ -50,6 +52,26 @@ const register = async (req, res) => {
             type,
             sports
         });
+
+        // Auto-create respective profile
+        if (type === "scout") {
+            await Scout.create({
+                userId: user._id,
+                instituteName: name + " Academy",
+                institutePic: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+                location: { city: "Unknown", state: "Unknown", country: "India" },
+                sportsPlayed: sports,
+                fee: { amount: 0, currency: "INR", unit: "per month" }
+            });
+        } else if (type === "player") {
+            await Athlete.create({
+                userId: user._id,
+                dob: new Date("2000-01-01"),
+                gender: "Male",
+                location: { city: "Unknown", state: "Unknown", country: "India" },
+                sports: sports.map(s => ({ sportName: s, experienceYears: 0, currentLevel: "District", data: {} }))
+            });
+        }
 
 
         res.status(201).json({
