@@ -231,7 +231,7 @@ export default function PlayerHome() {
       setLoading(true);
       try {
         // Fetch scouts
-        const scoutsRes = await fetch("http://localhost:4000/api/v1/scouts");
+        const scoutsRes = await fetch("https://sih-backend-rxwu.onrender.com/api/v1/scouts");
         if (scoutsRes.ok) {
           const scoutsData = await scoutsRes.json();
           if (scoutsData.data && scoutsData.data.length > 0) {
@@ -250,7 +250,7 @@ export default function PlayerHome() {
         // Fetch player applications from backend
         const playerId = user?.id || user?._id;
         if (playerId) {
-          const appsRes = await fetch(`http://localhost:4000/api/v1/applications/player/${playerId}`);
+          const appsRes = await fetch(`https://sih-backend-rxwu.onrender.com/api/v1/applications/player/${playerId}`);
           if (appsRes.ok) {
             const appsData = await appsRes.json();
             if (appsData.data) {
@@ -302,7 +302,7 @@ export default function PlayerHome() {
 
     try {
       // Attempt backend API post
-      const res = await fetch("http://localhost:4000/api/v1/apply", {
+      const res = await fetch("https://sih-backend-rxwu.onrender.com/api/v1/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

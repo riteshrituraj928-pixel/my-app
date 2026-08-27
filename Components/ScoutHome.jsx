@@ -3,7 +3,7 @@ import { useAuth } from "../src/context/AuthContext";
 import Navbar from "./Navbar";
 import toast from "react-hot-toast";
 
-const API_BASE = "http://localhost:4000/api/v1";
+const API_BASE = "https://sih-backend-rxwu.onrender.com/api/v1";
 
 export default function ScoutHome() {
   const { user } = useAuth();
