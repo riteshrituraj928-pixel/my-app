@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Home from "../Components/Home";
 import About from "../Components/About";
 import Games from "../Components/Games";
-import SignIn from "../Components/Signin";
+import SignIn from "../Components/SignIn";
 import SignUp from "../Components/SignUp";
 import Profile from "../Components/Profile";
 
