@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import PlayerHome from "./PlayerHome";
 import ScoutHome from "./ScoutHome";
@@ -61,8 +62,8 @@ export default function Home() {
 
         {/* CTA Button */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="/signup"
+          <Link
+            to="/signup"
             className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-500 px-9 py-4 text-lg font-extrabold text-white shadow-xl shadow-orange-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/40 hover:brightness-110 active:scale-[0.97]"
           >
             Get Started
@@ -79,7 +80,7 @@ export default function Home() {
                 d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
               />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
