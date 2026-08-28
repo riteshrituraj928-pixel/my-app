@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import VerificationModal from './VerificationModal';
 import { SPORTS_LIST } from '../src/data/sportsList';
+import toast from 'react-hot-toast';
 import './Profile.css';
 
 export default function Profile() {
@@ -37,7 +38,6 @@ export default function Profile() {
     targetRegions: authUser?.targetRegions || ''
   });
 
-  // Keep local profile state in sync with authUser
   useEffect(() => {
     if (authUser) {
       setUser((prev) => ({
@@ -54,7 +54,7 @@ export default function Profile() {
     (s) => s.name.toLowerCase() === user.sport?.toLowerCase()
   ) || { icon: '🏃' };
 
-  const handleSaveProfile = (updatedData) => {
+  const handleSaveProfile = async (updatedData) => {
     const fullProfile = {
       ...user,
       ...updatedData,
@@ -62,8 +62,28 @@ export default function Profile() {
       verificationPercentage: 100
     };
     setUser(fullProfile);
+
     if (updateUser) {
       updateUser(fullProfile);
+    }
+
+    try {
+      const res = await fetch("https://sih-backend-rxwu.onrender.com/api/v1/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: authUser?.id || authUser?._id,
+          ...updatedData
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        if (updateUser) updateUser(data.user);
+        toast.success("Profile saved permanently to cloud! ☁️");
+      }
+    } catch (err) {
+      console.error("Cloud Save Error:", err);
+      toast.success("Profile saved locally!");
     }
   };
 
