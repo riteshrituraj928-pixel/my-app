@@ -105,11 +105,11 @@ export default function VerificationModal({ isOpen, onClose, userData, onSave })
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Full Name</label>
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Age (Years)</label>
-                  <input type="number" name="age" value={formData.age} onChange={handleChange} required />
+                  <input type="number" name="age" value={formData.age} onChange={handleChange} />
                 </div>
               </div>
 
@@ -135,11 +135,11 @@ export default function VerificationModal({ isOpen, onClose, userData, onSave })
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Village Name</label>
-                  <input type="text" name="village" value={formData.village} onChange={handleChange} required />
+                  <input type="text" name="village" value={formData.village} onChange={handleChange} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">District & State</label>
-                  <input type="text" name="district" value={formData.district} onChange={handleChange} required />
+                  <input type="text" name="district" value={formData.district} onChange={handleChange} />
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function VerificationModal({ isOpen, onClose, userData, onSave })
                 <>
                   <div className="form-group">
                     <label className="form-label">Scouting Agency / Organization</label>
-                    <input type="text" name="scoutAgency" value={formData.scoutAgency} onChange={handleChange} required />
+                    <input type="text" name="scoutAgency" value={formData.scoutAgency} onChange={handleChange} />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Scouting Experience (Years)</label>
@@ -221,10 +221,9 @@ export default function VerificationModal({ isOpen, onClose, userData, onSave })
 
           <div className="modal-footer">
             {step > 1 && <button type="button" className="btn-secondary" onClick={() => setStep(step - 1)}>Back</button>}
-            {step < 4 ? (
+            <button type="submit" className="btn-success">Save Profile ✓</button>
+            {step < 4 && (
               <button type="button" className="btn-primary" onClick={() => setStep(step + 1)}>Next →</button>
-            ) : (
-              <button type="submit" className="btn-success">Submit & Verify ✓</button>
             )}
           </div>
         </form>
