@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../src/context/AuthContext";
 
@@ -112,14 +112,14 @@ export default function SignUp() {
         {/* ——— Left: Form ——— */}
         <div className="flex w-full flex-col justify-center px-8 py-10 sm:px-12 sm:py-14 lg:w-1/2 lg:px-14">
           {/* Back arrow */}
-          <a
-            href="/"
+          <Link
+            to="/"
             className="mb-6 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-gray-400 transition-colors hover:border-white/20 hover:text-white"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-          </a>
+          </Link>
 
           {/* Heading */}
           <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
@@ -132,9 +132,9 @@ export default function SignUp() {
             Join GaonKhiladi as a {role === "player" ? "Player" : "Talent Scout"}!
             <br />
             Already registered?{" "}
-            <a href="/signin" className={`font-semibold ${t.text} hover:underline transition-colors`}>
+            <Link to="/signin" className={`font-semibold ${t.text} hover:underline transition-colors`}>
               Sign in here
-            </a>
+            </Link>
           </p>
 
           {/* ——— Role toggle ——— */}
