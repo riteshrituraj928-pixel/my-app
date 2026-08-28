@@ -1,47 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import VerificationModal from './VerificationModal';
 import { SPORTS_LIST } from '../src/data/sportsList';
 import './Profile.css';
 
 export default function Profile() {
-  const { user: authUser } = useAuth();
+  const { user: authUser, updateUser } = useAuth();
 
-  // Merge auth user data with profile state
-  // If profile hasn't been updated via the verification modal,
-  // we show only the basic data we have from signup/login
   const [user, setUser] = useState({
     name: authUser?.name || 'Unknown User',
     email: authUser?.email || '',
     mobileNo: authUser?.mobileNo || '',
-    role: authUser?.type || 'player', // backend stores as 'type'
+    role: authUser?.type || authUser?.role || 'player',
     sports: authUser?.sports || [],
 
-    // These fields are empty until the user completes their profile
-    age: '',
-    gender: '',
-    academicQualification: '',
-    village: '',
-    district: '',
-    avatar: '',
-    verificationPercentage: 0,
-    isVerified: false,
+    age: authUser?.age || '',
+    gender: authUser?.gender || '',
+    academicQualification: authUser?.academicQualification || '',
+    village: authUser?.village || '',
+    district: authUser?.district || '',
+    avatar: authUser?.avatar || '',
+    verificationPercentage: authUser?.verificationPercentage || 0,
+    isVerified: authUser?.isVerified || false,
 
-    // Player Specific Data
-    sport: authUser?.sports?.[0] || '',
-    sportLevel: '',
-    villageRank: '',
-    rating: 0,
-    bio: '',
-    achievements: '',
-    videoProofUrl: '',
-    photoProofUrl: '',
+    sport: authUser?.sport || authUser?.sports?.[0] || '',
+    sportLevel: authUser?.sportLevel || '',
+    villageRank: authUser?.villageRank || '',
+    rating: authUser?.rating || 0,
+    bio: authUser?.bio || '',
+    achievements: authUser?.achievements || '',
+    videoProofUrl: authUser?.videoProofUrl || '',
+    photoProofUrl: authUser?.photoProofUrl || '',
 
-    // Scout Specific Data
-    scoutAgency: '',
-    scoutExperience: '',
-    targetRegions: ''
+    scoutAgency: authUser?.scoutAgency || '',
+    scoutExperience: authUser?.scoutExperience || '',
+    targetRegions: authUser?.targetRegions || ''
   });
+
+  // Keep local profile state in sync with authUser
+  useEffect(() => {
+    if (authUser) {
+      setUser((prev) => ({
+        ...prev,
+        ...authUser
+      }));
+    }
+  }, [authUser]);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,13 +55,19 @@ export default function Profile() {
   ) || { icon: '🏃' };
 
   const handleSaveProfile = (updatedData) => {
-    setUser((prev) => ({
-      ...prev,
-      ...updatedData
-    }));
+    const fullProfile = {
+      ...user,
+      ...updatedData,
+      isVerified: true,
+      verificationPercentage: 100
+    };
+    setUser(fullProfile);
+    if (updateUser) {
+      updateUser(fullProfile);
+    }
   };
 
-  const isProfileIncomplete = !user.age || !user.village || !user.gender;
+  const isProfileIncomplete = !user.isVerified && (!user.age || !user.village);
 
   const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=0f172a&size=130&bold=true&font-size=0.4`;
 
@@ -303,39 +313,51 @@ export default function Profile() {
           {/* TAB 3: PROOFS & VIDEOS */}
           {activeTab === 'proofs' && (
             <div className="tab-pane">
-              <div className="proofs-grid">
-                <div className="content-card">
-                  <h3 className="section-title">🎥 Skill & Match Video Highlights</h3>
-                  {user.videoProofUrl ? (
-                    <div className="video-box">
-                      <iframe
-                        src={user.videoProofUrl}
-                        title="Skill Proof"
-                        className="video-iframe"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                  ) : (
-                    <div className="empty-state">
-                      <p>No video proof link provided yet.</p>
-                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
-                        Upload Video Proof
-                      </button>
-                    </div>
-                  )}
-                </div>
+              {user.videoProofUrl || user.photoProofUrl ? (
+                <div className="proofs-grid">
+                  <div className="content-card">
+                    <h3 className="section-title">🎥 Skill & Match Video Highlights</h3>
+                    {user.videoProofUrl ? (
+                      <div className="video-box">
+                        <iframe
+                          src={user.videoProofUrl}
+                          title="Skill Proof"
+                          className="video-iframe"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    ) : (
+                      <div className="empty-state">
+                        <p>No video proof link provided yet.</p>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="content-card">
-                  <h3 className="section-title">📜 Certificate / Photo Proof</h3>
-                  {user.photoProofUrl ? (
-                    <div className="photo-box">
-                      <img src={user.photoProofUrl} alt="Proof" className="proof-img" />
-                    </div>
-                  ) : (
-                    <p className="empty-text">No certificate photo uploaded.</p>
-                  )}
+                  <div className="content-card">
+                    <h3 className="section-title">📜 Certificate / Photo Proof</h3>
+                    {user.photoProofUrl ? (
+                      <div className="photo-box">
+                        <img src={user.photoProofUrl} alt="Proof" className="proof-img" />
+                      </div>
+                    ) : (
+                      <p className="empty-text">No certificate photo uploaded.</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🎥</p>
+                  <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                    Upload Skill Video & Proofs
+                  </h3>
+                  <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                    Upload match video links and certificates to get verified.
+                  </p>
+                  <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                    ⚡ Add Proofs Now
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -365,7 +387,7 @@ export default function Profile() {
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Age & Gender:</span>
-                      <span className="detail-val">{user.age} Years • {user.gender}</span>
+                      <span className="detail-val">{user.age ? `${user.age} Years` : 'Not specified'} • {user.gender || 'Not specified'}</span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Village / Gram Panchayat:</span>
