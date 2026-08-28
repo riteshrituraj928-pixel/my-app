@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../src/context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -186,12 +186,13 @@ export default function Navbar() {
 
                     ))}
                    
-                    <a
-                      href="/games"
+                    <Link
+                      to="/games"
+                      onClick={() => setGamesOpen(false)}
                       className="flex items-center justify-center gap-1 px-3 py-2.5 text-xs font-bold text-orange-600 transition-colors hover:text-orange-800"
                     >
                       View all games
-                     </a>
+                    </Link>
                      
                   </div>
                   <div className="border-t border-gray-100 px-4 py-3">
@@ -363,14 +364,15 @@ export default function Navbar() {
             >
               <div className="ml-2 space-y-0.5 border-l-2 border-emerald-100 pl-3">
                 {games.map((game) => (
-                  <a
+                  <Link
                     key={game.name}
-                    href={`/games/${game.name.toLowerCase()}`}
+                    to="/games"
+                    onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     <span className="text-base">{game.emoji}</span>
                     {game.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -392,18 +394,20 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <a
-                  href="/signin"
+                <Link
+                  to="/signin"
+                  onClick={() => setMobileMenuOpen(false)}
                   className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-center text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   Sign In
-                </a>
-                <a
-                  href="/signup"
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
                   className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition-all hover:shadow-lg hover:brightness-110"
                 >
                   Sign Up
-                </a>
+                </Link>
               </>
             )}
           </div>
