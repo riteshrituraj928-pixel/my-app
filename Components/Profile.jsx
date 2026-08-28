@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import VerificationModal from './VerificationModal';
 import { SPORTS_LIST } from '../src/data/sportsList';
@@ -7,43 +7,40 @@ import './Profile.css';
 export default function Profile() {
   const { user: authUser } = useAuth();
 
-  const userKey = authUser?.email || authUser?._id || authUser?.name;
+  // Merge auth user data with profile state
+  // If profile hasn't been updated via the verification modal,
+  // we show only the basic data we have from signup/login
+  const [user, setUser] = useState({
+    name: authUser?.name || 'Unknown User',
+    email: authUser?.email || '',
+    mobileNo: authUser?.mobileNo || '',
+    role: authUser?.type || 'player', // backend stores as 'type'
+    sports: authUser?.sports || [],
 
-  // Read saved profile from localStorage if available
-  const [user, setUser] = useState(() => {
-    const saved = userKey ? localStorage.getItem(`profile_data_${userKey}`) : null;
-    const parsedSaved = saved ? JSON.parse(saved) : {};
+    // These fields are empty until the user completes their profile
+    age: '',
+    gender: '',
+    academicQualification: '',
+    village: '',
+    district: '',
+    avatar: '',
+    verificationPercentage: 0,
+    isVerified: false,
 
-    return {
-      name: authUser?.name || 'Unknown User',
-      email: authUser?.email || '',
-      mobileNo: authUser?.mobileNo || '',
-      role: authUser?.type || authUser?.role || 'player',
-      sports: authUser?.sports || [],
+    // Player Specific Data
+    sport: authUser?.sports?.[0] || '',
+    sportLevel: '',
+    villageRank: '',
+    rating: 0,
+    bio: '',
+    achievements: '',
+    videoProofUrl: '',
+    photoProofUrl: '',
 
-      age: '',
-      gender: '',
-      academicQualification: '',
-      village: '',
-      district: '',
-      avatar: '',
-      verificationPercentage: 0,
-      isVerified: false,
-
-      sport: authUser?.sports?.[0] || '',
-      sportLevel: '',
-      villageRank: '',
-      rating: 0,
-      bio: '',
-      achievements: '',
-      videoProofUrl: '',
-      photoProofUrl: '',
-
-      scoutAgency: '',
-      scoutExperience: '',
-      targetRegions: '',
-      ...parsedSaved
-    };
+    // Scout Specific Data
+    scoutAgency: '',
+    scoutExperience: '',
+    targetRegions: ''
   });
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -53,16 +50,11 @@ export default function Profile() {
     (s) => s.name.toLowerCase() === user.sport?.toLowerCase()
   ) || { icon: '🏃' };
 
-  // Save profile updates to state and localStorage
   const handleSaveProfile = (updatedData) => {
-    const updatedUser = {
-      ...user,
+    setUser((prev) => ({
+      ...prev,
       ...updatedData
-    };
-    setUser(updatedUser);
-    if (userKey) {
-      localStorage.setItem(`profile_data_${userKey}`, JSON.stringify(updatedUser));
-    }
+    }));
   };
 
   const isProfileIncomplete = !user.age || !user.village || !user.gender;
@@ -71,7 +63,7 @@ export default function Profile() {
 
   return (
     <div className="demo3-profile-wrapper">
-      {/* Main Glass Card Container */}
+      {/* Main Glass Card Container (Demo 3 Style) */}
       <div className="demo3-profile-card">
         {/* Vibrant Gradient Banner */}
         <div className="demo3-banner">
@@ -156,10 +148,250 @@ export default function Profile() {
               <p className="insight-desc">
                 {isProfileIncomplete
                   ? 'Complete your profile to get noticed by scouts.'
-                  : 'Profile 100% Complete & Verified.'}
+                  : user.isVerified
+                    ? 'Your profile is 100% verified for scouts!'
+                    : 'Profile details added. Submit for verification.'}
               </p>
             </div>
+            <div className="insight-arrow">➔</div>
           </div>
+
+          <div className="insight-card click-card" onClick={() => setActiveTab('proofs')}>
+            <div className="insight-text-wrapper">
+              <span className="insight-title">Skill & Match Proofs</span>
+              <p className="insight-desc">
+                {user.videoProofUrl ? '1 Video & Certificate Attached' : 'Upload match highlights'}
+              </p>
+            </div>
+            <div className="insight-arrow">➔</div>
+          </div>
+
+          <div className="insight-card click-card" onClick={() => setActiveTab('academic')}>
+            <div className="insight-text-wrapper">
+              <span className="insight-title">Academic & Village Stats</span>
+              <p className="insight-desc">
+                {user.academicQualification
+                  ? `${user.academicQualification} • ${user.village || 'No village set'}`
+                  : 'Add your academic and village details'}
+              </p>
+            </div>
+            <div className="insight-arrow">➔</div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs Bar */}
+        <div className="demo3-tabs-bar">
+          <button
+            className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview & Bio
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'sport' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sport')}
+          >
+            {user.role === 'player' ? 'Sport & Ranking' : 'Scouting Coverage'}
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'proofs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('proofs')}
+          >
+            Skill Video & Proofs
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'academic' ? 'active' : ''}`}
+            onClick={() => setActiveTab('academic')}
+          >
+            Academic Details
+          </button>
+        </div>
+
+        {/* Tab Content Body */}
+        <div className="demo3-tab-content">
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div className="tab-pane">
+              {isProfileIncomplete ? (
+                <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <p style={{ fontSize: '3rem', marginBottom: '16px' }}>📋</p>
+                  <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                    Complete Your Profile
+                  </h3>
+                  <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                    Hi <strong>{user.name}</strong>! Your profile is not complete yet. Click the button below to add your bio, achievements, and personal details so scouts can discover you.
+                  </p>
+                  <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                    ⚡ Complete Profile Now
+                  </button>
+                </div>
+              ) : (
+                <div className="content-grid-2col">
+                  <div className="content-card">
+                    <h3 className="section-title">📝 About / Sports Journey</h3>
+                    <p className="bio-paragraph">{user.bio || 'No bio added yet.'}</p>
+                  </div>
+
+                  <div className="content-card">
+                    <h3 className="section-title">🏆 Key Achievements & Medals</h3>
+                    <pre className="achievements-pre">{user.achievements || 'No achievements listed.'}</pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: SPORT / SCOUTING DETAILS */}
+          {activeTab === 'sport' && (
+            <div className="tab-pane">
+              {user.role === 'player' ? (
+                <div className="sport-details-wrapper">
+                  {user.sport && user.sportLevel ? (
+                    <div className="sport-hero-card">
+                      <span className="giant-sport-icon">{currentSportObj.icon}</span>
+                      <div className="sport-hero-info">
+                        <h2>{user.sport}</h2>
+                        <p className="sport-subtitle">{user.sportLevel}</p>
+                        <div className="chips-row">
+                          {user.villageRank && <span className="chip-yellow">🏆 {user.villageRank}</span>}
+                          {user.rating > 0 && <span className="chip-blue">⭐ {user.rating} / 5.0 Scout Rating</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                      <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🏅</p>
+                      <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                        Add Sport Details
+                      </h3>
+                      <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                        Tell us about your sport, level, and ranking.
+                      </p>
+                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                        ⚡ Add Sport Details
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="scout-details-wrapper">
+                  {user.scoutAgency ? (
+                    <div className="content-card">
+                      <h3>🔍 Scouting Organization: {user.scoutAgency}</h3>
+                      <p><strong>Years of Experience:</strong> {user.scoutExperience}</p>
+                      <p><strong>Target Talent Districts:</strong> {user.targetRegions}</p>
+                    </div>
+                  ) : (
+                    <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                      <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</p>
+                      <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                        Add Scouting Details
+                      </h3>
+                      <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                        Add your scouting agency and experience details.
+                      </p>
+                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                        ⚡ Add Scouting Details
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: PROOFS & VIDEOS */}
+          {activeTab === 'proofs' && (
+            <div className="tab-pane">
+              <div className="proofs-grid">
+                <div className="content-card">
+                  <h3 className="section-title">🎥 Skill & Match Video Highlights</h3>
+                  {user.videoProofUrl ? (
+                    <div className="video-box">
+                      <iframe
+                        src={user.videoProofUrl}
+                        title="Skill Proof"
+                        className="video-iframe"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <div className="empty-state">
+                      <p>No video proof link provided yet.</p>
+                      <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                        Upload Video Proof
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="content-card">
+                  <h3 className="section-title">📜 Certificate / Photo Proof</h3>
+                  {user.photoProofUrl ? (
+                    <div className="photo-box">
+                      <img src={user.photoProofUrl} alt="Proof" className="proof-img" />
+                    </div>
+                  ) : (
+                    <p className="empty-text">No certificate photo uploaded.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: ACADEMIC DETAILS */}
+          {activeTab === 'academic' && (
+            <div className="tab-pane">
+              {isProfileIncomplete ? (
+                <div className="content-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🎓</p>
+                  <h3 className="section-title" style={{ borderBottom: 'none', textAlign: 'center' }}>
+                    Add Academic Details
+                  </h3>
+                  <p className="bio-paragraph" style={{ marginBottom: '24px' }}>
+                    Complete your profile to show academic and personal information.
+                  </p>
+                  <button className="btn-edit-main" onClick={() => setIsModalOpen(true)}>
+                    ⚡ Complete Profile
+                  </button>
+                </div>
+              ) : (
+                <div className="content-card">
+                  <h3 className="section-title">🎓 Personal & Educational Qualifications</h3>
+                  <div className="details-list">
+                    <div className="detail-item">
+                      <span className="detail-label">Academic Qualification:</span>
+                      <span className="detail-val">{user.academicQualification || 'Not specified'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Age & Gender:</span>
+                      <span className="detail-val">{user.age} Years • {user.gender}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Village / Gram Panchayat:</span>
+                      <span className="detail-val">{user.village || 'Not specified'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">District & State:</span>
+                      <span className="detail-val">{user.district || 'Not specified'}</span>
+                    </div>
+                    {user.email && (
+                      <div className="detail-item">
+                        <span className="detail-label">Email:</span>
+                        <span className="detail-val">{user.email}</span>
+                      </div>
+                    )}
+                    {user.mobileNo && (
+                      <div className="detail-item">
+                        <span className="detail-label">Mobile:</span>
+                        <span className="detail-val">{user.mobileNo}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
