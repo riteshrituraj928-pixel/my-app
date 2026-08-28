@@ -3,8 +3,6 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // Read from localStorage synchronously so ProtectedRoute
-  // sees the correct auth state on the very first render
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem("user");
@@ -20,6 +18,14 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
+  const updateUser = (updatedData) => {
+    setUser((prev) => {
+      const newObj = { ...prev, ...updatedData };
+      localStorage.setItem("user", JSON.stringify(newObj));
+      return newObj;
+    });
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -28,7 +34,7 @@ export function AuthProvider({ children }) {
   const isLoggedIn = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
