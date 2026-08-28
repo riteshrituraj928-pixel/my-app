@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const values = [
   {
     icon: "🎯",
@@ -141,8 +143,8 @@ export default function About() {
             Whether you are an athlete, coach, or supporter — there is a place
             for you at GAON KHILADI.
           </p>
-          <a
-            href="/signup"
+          <Link
+            to="/signup"
             className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/40 hover:brightness-110 active:scale-[0.97] sm:px-10 sm:py-4 sm:text-lg"
           >
             Get Started
@@ -159,7 +161,7 @@ export default function About() {
                 d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
               />
             </svg>
-          </a>
+          </Link>
         </div>
       </section>
 
