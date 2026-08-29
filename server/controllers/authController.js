@@ -17,10 +17,15 @@ const register = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ 
+            $or: [{ email }, { mobileNo }] 
+        });
 
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+            if (existingUser.email === email) {
+                return res.status(400).json({ message: "User already exists with this email" });
+            }
+            return res.status(400).json({ message: "User already exists with this mobile number" });
         }
 
         const user = await User.create({
@@ -32,23 +37,28 @@ const register = async (req, res) => {
             sports
         });
 
-        if (type === "scout") {
-            await Scout.create({
-                userId: user._id,
-                instituteName: name + " Academy",
-                institutePic: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
-                location: { city: "Unknown", state: "Unknown", country: "India" },
-                sportsPlayed: sports,
-                fee: { amount: 0, currency: "INR", unit: "per month" }
-            });
-        } else if (type === "player") {
-            await Athlete.create({
-                userId: user._id,
-                dob: new Date("2000-01-01"),
-                gender: "Male",
-                location: { city: "Unknown", state: "Unknown", country: "India" },
-                sports: sports.map(s => ({ sportName: s, experienceYears: 0, currentLevel: "District", data: {} }))
-            });
+        try {
+            if (type === "scout") {
+                await Scout.create({
+                    userId: user._id,
+                    instituteName: name + " Academy",
+                    institutePic: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+                    location: { city: "Unknown", state: "Unknown", country: "India" },
+                    sportsPlayed: sports,
+                    fee: { amount: 0, currency: "INR", unit: "per month" }
+                });
+            } else if (type === "player") {
+                await Athlete.create({
+                    userId: user._id,
+                    dob: new Date("2000-01-01"),
+                    gender: "Male",
+                    location: { city: "Unknown", state: "Unknown", country: "India" },
+                    sports: sports.map(s => ({ sportName: s, experienceYears: 0, currentLevel: "District", data: {} }))
+                });
+            }
+        } catch (profileError) {
+            await User.findByIdAndDelete(user._id);
+            throw profileError;
         }
 
         res.status(201).json({
